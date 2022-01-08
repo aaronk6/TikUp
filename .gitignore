@@ -3,3 +3,4 @@
 /tikup.egg-info/
 /build/
 /tikup/*/
+.DS_Store
