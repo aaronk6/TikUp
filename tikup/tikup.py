@@ -206,7 +206,19 @@ def getUsername(tiktokId):
 
 
 def getTikTokObject(tiktokId, did):
-    thing = api.get_tiktok_by_id(tiktokId, custom_did=did)
+    tries = 5
+    thing = None
+    for i in range(tries):
+        try:
+            thing = api.get_tiktok_by_id(tiktokId, custom_did=did)
+        except Exception as e:
+            if i < tries - 1:
+                print("Got an exception (%s) when trying to get TikTok %s, retrying..." % (e, tiktokId))
+                time.sleep(1)
+                continue
+            else:
+                print("Giving up - %s was NOT downloaded!" % tiktokId)
+        break
     return thing
 
 
