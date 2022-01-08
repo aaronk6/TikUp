@@ -170,6 +170,9 @@ def downloadTikToks(username, tiktoks, file, downloadType, did):
             print(tiktok + " has already been archived.")
         else:
             tiktokObj = getTikTokObject(tiktok, did)
+            if not tiktokObj:
+                ids.append(tiktok)
+                continue
             username = getUsername(tiktok)
             if username is None:
                 print(tiktok + ' has been deleted or is private')
