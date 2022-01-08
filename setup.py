@@ -22,7 +22,7 @@ requirements = read_multiline_as_list("requirements.txt")
 setup(
     name='tikup',
     version=getVersion(),
-    description='An auto downloader and uploader for TikTok videos.',
+    description='An auto downloader for TikTok videos.',
     long_description=long_description,
     long_description_content_type='text/markdown',
     url='https://github.com/Coloradohusky/TikUp',
