@@ -5,7 +5,6 @@ import sys
 import time
 import random
 
-import youtube_dl
 from internetarchive import get_item, upload
 from TikTokApi import TikTokApi
 #Make sure to change to 'from .argparser import parse_args' when uploading
@@ -53,52 +52,17 @@ def downloadTikTok(username, tiktok, cwd, varTry, did):
             tiktokID = tiktok['itemInfos']['id']
         except:
             tiktokID = tiktok['itemInfo']['itemStruct']['id']
-    ydl_opts = {
-        'writeinfojson': True,
-        'writedescription': True,
-        'write_all_thumbnails': True,
-        'writeannotations': True,
-        'allsubtitles': True,
-        'ignoreerrors': True,
-        'fixup': True,
-        'quiet': True,
-        'no_warnings': True,
-        'restrictfilenames': True,
-        'outtmpl': tiktokID + '.mp4',
-    }
     if not os.path.exists(tiktokID):
         os.mkdir(tiktokID)
     os.chdir(tiktokID)
-    filesExist = (os.path.exists(tiktokID + '.description') and os.path.getsize(tiktokID + '.description') > 0) and (os.path.exists(tiktokID + '.info.json') and os.path.getsize(tiktokID + '.info.json') > 0) and (os.path.exists(tiktokID + '.jpg') and os.path.getsize(tiktokID + '.jpg') > 0) and (os.path.exists(tiktokID + '.mp4') and os.path.getsize(tiktokID + '.mp4') > 0) and (os.path.exists('tiktok_info.json') and os.path.getsize('tiktok_info.json') > 0)
-    if not filesExist:
-        if varTry % 3 != 0:
-            with youtube_dl.YoutubeDL(ydl_opts) as ydl:
-                # ydl.download([tiktok['itemInfo']['itemStruct']['video']['downloadAddr']])
-                ydl.download(['https://www.tiktok.com/@' + username + '/video/' + tiktokID])
-        else:
-            mp4 = open(tiktokID + '.mp4', "wb")
-            mp4.write(api.get_video_by_download_url(tiktok['itemInfo']['itemStruct']['video']['downloadAddr'], custom_did=did))
-            mp4.close()
+    if (os.path.exists(tiktokID + '.mp4') and os.path.getsize(tiktokID + '.mp4') > 0) and (os.path.exists('tiktok_info.json') and os.path.getsize('tiktok_info.json') > 0):
+        print("%s already exists, not going to redownload" % tiktokID)
+    else:
+        print("Downloading TikTok %s from %s" % ( tiktokID, tiktok['itemInfo']['itemStruct']['video']['downloadAddr'] ))
+        mp4 = open(tiktokID + '.mp4', "wb")
+        mp4.write(api.get_video_by_download_url(tiktok['itemInfo']['itemStruct']['video']['downloadAddr'], custom_did=did))
+        mp4.close()
             #shutil.rmtree('tmp')
-        try:
-            mp4 = open(tiktokID + '.mp4', "r", encoding="latin-1")
-            # For some reason, ytdl sometimes downloads the HTML page instead of the video
-            # this removes the HTML
-            check = str(mp4.read())[:15]
-            if (check == '<!DOCTYPE html>') or (check[:6] == '<HTML>'):
-                mp4.close()
-                os.remove(tiktokID + '.mp4')
-            else:
-                mp4.close()
-        except FileNotFoundError:
-            pass
-        x = os.listdir()
-        for i in x:
-            if i.endswith('.unknown_video'):
-                base = os.path.splitext(i)[0]
-                if os.path.exists(base + '.mp4'):
-                    os.remove(base + '.mp4')
-                os.rename(i, base + '.mp4')
         json = open("tiktok_info.json", "w", encoding="utf-8")
         json.write(str(tiktok))
         json.close()
@@ -186,8 +150,7 @@ def downloadTikToks(username, tiktoks, file, downloadType, did):
                     time.sleep(1)
                     downloadTikTok(username, tiktokObj, cwd, i, did)
                     i += 1
-                print(tiktok + ' has been downloaded')
-                ids.append(tiktok)
+            ids.append(tiktok)
     return ids
 
 
